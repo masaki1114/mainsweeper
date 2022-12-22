@@ -90,8 +90,6 @@ def create_canvas():
 
   return root, canvas
 
-
-
 def click(event):
   global i, k, first_click_place, canvas_num, bom_number, opened_canvas
   x, y = point_to_numbers(event.x, event.y)
