@@ -122,7 +122,7 @@ def click(event):
 
   if a == 0:
     print("LAST:", 400 - len(opened_canvas) - i, "squares")
-  if len(opened_canvas) == 400 - i :
+  if len(opened_canvas) == NUMBER * NUMBER - i :
     print("congratulation!!")
     canvas = tk.Canvas(state = 'disable')
     retry_game()
@@ -138,28 +138,16 @@ def flag_click(event2):
   elif flag_place[ canvas_place(x, y) ] == 1:
     set_item("block", x, y)
     flag_place[ canvas_place(x, y) ] -= 1
-
-
+  
 def first_click(x, y):
   global first_click_place
-  first_click_place = [ canvas_place(x,y) ]
-  if x < 19 :
-    first_click_place.append( canvas_place(x+1,y) )
-  if x > 0 :
-    first_click_place.append( canvas_place(x-1,y) )
-  if y > 0 :
-    first_click_place.append( canvas_place(x,y-1) )
-  if y < 19 :
-    first_click_place.append( canvas_place(x,y+1) )
-  if x < 19 and y < 19 :
-    first_click_place.append( canvas_place(x+1,y+1) )
-  if x > 0 and y < 19 :
-    first_click_place.append( canvas_place(x-1,y+1) )
-  if x < 19 and y > 0 :
-    first_click_place.append( canvas_place(x+1,y-1) )
-  if x > 0 and y > 0 :
-    first_click_place.append( canvas_place(x-1,y-1) )
-  
+  for i in range(-1, 2):
+    for j in range(-1, 2):
+      if x+j < 0 or x+j > NUMBER-1 or y+i < 0 or y+i > NUMBER-1: 
+        continue
+      else:
+       first_click_place.append( canvas_place(x+j, y+i) )
+
 def around_click(x, y):
     global around_click_list, v, opened_canvas
     if canvas_num[ canvas_place(x, y) ] == 0:
@@ -227,52 +215,31 @@ def set_bom():
   bom_number.append( canvas_place(m,n) )
   bom_number[i] = canvas_place(m,n)
   canvas_num[ canvas_place(m,n) ] -= 9
-  if m > 0 and n > 0 :
-    canvas_num[ canvas_place(m-1,n-1) ] += 1
-  if m > 0 and n < 19 :
-    canvas_num[ canvas_place(m-1,n+1) ] += 1
-  if m < 19 and n < 19 :
-    canvas_num[ canvas_place(m+1,n+1) ] += 1
-  if m < 19 and n > 0 :
-    canvas_num[ canvas_place(m+1,n-1) ] += 1
-  if m > 0 :
-    canvas_num[ canvas_place(m-1,n) ] += 1
-  if m < 19 :
-    canvas_num[ canvas_place(m+1,n) ] += 1
-  if n > 0 :
-    canvas_num[ canvas_place(m,n-1) ] += 1
-  if n < 19 :
-   canvas_num[ canvas_place(m,n+1) ] += 1
+  for p in range(-1, 2):
+    for q in range(-1, 2):
+      if m+q < 0 or m+q > NUMBER-1 or n+p < 0 or n+p > NUMBER-1: 
+        continue
+      elif q == 0 and p == 0:
+        continue
+      else:
+        canvas_num[ canvas_place(m+q, n+p) ] += 1
 
   if i > 0:  #comfirm not to putting bom same place
-    cor = 0
-    e = 0
-    while cor < i:
-     if bom_number[i] != bom_number[cor]:
-      cor += 1
-     elif bom_number[i] == bom_number[cor]:
-      canvas_num[ canvas_place(m,n) ] += 9
-      e += 1
-      if m > 0 and n > 0 :
-       canvas_num[ canvas_place(m-1,n-1) ] -= 1
-      if m > 0 and n < 19 :
-       canvas_num[ canvas_place(m-1,n+1) ] -= 1
-      if m < 19 and n < 19 :
-       canvas_num[ canvas_place(m+1,n+1) ] -= 1  
-      if m < 19 and n > 0 :
-        canvas_num[ canvas_place(m+1,n-1) ] -= 1
-      if m > 0 :
-        canvas_num[ canvas_place(m-1,n) ] -= 1
-      if m < 19 :
-        canvas_num[ canvas_place(m+1,n) ] -= 1
-      if n > 0 :
-        canvas_num[ canvas_place(m,n-1) ] -= 1
-      if n < 19 :
-        canvas_num[ canvas_place(m,n+1) ] -= 1
- 
+    col = 0
+    while col < i:
+     if bom_number[i] != bom_number[col]:
+      col += 1
+     elif bom_number[i] == bom_number[col]:
+      canvas_num[ canvas_place(m, n) ] += 9
+      for k in range(-1, 2):
+       for j in range(-1, 2):
+        if m+j < 0 or m+j > NUMBER-1 or n+k < 0 or n+k > NUMBER-1: 
+         continue
+        elif j == 0 and k == 0:
+          continue
+        else:
+         canvas_num[ canvas_place(m+j, n+k) ] -= 1
       set_bom()
-
-  
 
 def before_set_number():
   global canvas_num
