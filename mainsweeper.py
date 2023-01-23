@@ -5,10 +5,11 @@ import sys
 
 canvas = None
 i = 0
-a = 0
+game_over_switch = 0
 v = -1
 launch_count = 0
 bom_sum = 60
+number_color = ['00f','0f0','f00','c0d','fc0','ed3','f0f','d00']
 canvas_num = []
 bom_place = []
 bom_number = []
@@ -35,7 +36,7 @@ def set_field():
     canvas.create_line(POSITION["x"], y, LENGTH  + POSITION["x"], y, width=BORDER_WIDTH, fill='#000')
 
 def set_item(kind, x, y):              
-  global opened_canvas
+  global opened_canvas, number_color
   center_x = POSITION["x"] + BORDER_WIDTH * x + BORDER_WIDTH / 2 + SQUARE_LENGTH * x + SQUARE_LENGTH / 2
   center_y = POSITION["y"] + BORDER_WIDTH * y + BORDER_WIDTH / 2 + SQUARE_LENGTH * y + SQUARE_LENGTH / 2
 
@@ -48,22 +49,11 @@ def set_item(kind, x, y):
       canvas.create_rectangle(center_x - SQUARE_LENGTH / 2, center_y - SQUARE_LENGTH / 2, center_x + SQUARE_LENGTH / 2, center_y + SQUARE_LENGTH / 2, fill="#fda", width=0)
     elif kind == canvas_num[ canvas_place(x, y) ]:
       canvas.create_rectangle(center_x - SQUARE_LENGTH / 2, center_y - SQUARE_LENGTH / 2, center_x + SQUARE_LENGTH / 2, center_y + SQUARE_LENGTH / 2, fill='#fda', width=0)
-      if canvas_num[ canvas_place(x, y) ] == 1:
-        canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#00f")
-      elif canvas_num[ canvas_place(x, y) ] == 2:
-        canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#0f0")
-      elif canvas_num[ canvas_place(x, y) ] == 3:
-        canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#f00")
-      elif canvas_num[ canvas_place(x, y) ] == 4:
-        canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#c0d")
-      elif canvas_num[ canvas_place(x, y) ] == 5:
-        canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#fc0")
-      elif canvas_num[ canvas_place(x, y) ] == 6:
-        canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#ed3")
-      elif canvas_num[ canvas_place(x, y) ] == 7:
-        canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#f0f")
-      elif canvas_num[ canvas_place(x, y) ] == 8:
-        canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#d00")
+      for i in range(1, 9):
+        if canvas_num[ canvas_place(x, y) ] != i:
+          pass
+        elif canvas_num[ canvas_place(x, y) ] == i:
+          canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="" + "#" + number_color[i-1])
     elif kind == "F":
       canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="#f00")
     elif kind == "end":
@@ -92,7 +82,7 @@ def canvas_place(x, y):
   return canvas_place_number
 
 def click(event):
-  global i, launch_count, a, canvas, first_click_place, canvas_num, bom_number, opened_canvas
+  global i, launch_count, game_over_switch, canvas, first_click_place, canvas_num, bom_number, opened_canvas
   x, y = point_to_numbers(event.x, event.y)
   if launch_count < 1 :
     first_click(x, y)
@@ -120,7 +110,7 @@ def click(event):
 
   opened_canvas = list(dict.fromkeys(opened_canvas))
 
-  if a == 0:
+  if game_over_switch == 0:
     print("LAST:", 400 - len(opened_canvas) - i, "squares")
   if len(opened_canvas) == NUMBER * NUMBER - i :
     print("congratulation!!")
@@ -130,14 +120,20 @@ def click(event):
 def flag_click(event2):
   global flag_place 
   x, y = point_to_numbers(event2.x, event2.y)
-  
-  if flag_place[ canvas_place(x, y) ] == 0:
-    set_item("F", x, y)
-    flag_place[ canvas_place(x, y) ] += 1
-    flag_place.append( canvas_place(x, y) )
-  elif flag_place[ canvas_place(x, y) ] == 1:
-    set_item("block", x, y)
-    flag_place[ canvas_place(x, y) ] -= 1
+  blocks = 0
+  while blocks < len(opened_canvas):
+   if canvas_place(x, y) == opened_canvas[blocks]:
+    pass
+    blocks += 1
+   else:
+    if flag_place[ canvas_place(x, y) ] == 0:
+     set_item("F", x, y)
+     flag_place[ canvas_place(x, y) ] += 1
+     flag_place.append( canvas_place(x, y) )
+    elif flag_place[ canvas_place(x, y) ] == 1:
+     set_item("block", x, y)
+     flag_place[ canvas_place(x, y) ] -= 1
+    blocks += 1
   
 def first_click(x, y):
   global first_click_place
@@ -261,17 +257,17 @@ def flag_set_number():
   
 
 def end_game():
-  global canvas, a
+  global canvas, game_over_switch
   for out in range(0, bom_sum):
     set_item("end", bom_number[out] % 20, bom_number[out] // 20)
   
   print("game_over")
-  a += 1
+  game_over_switch += 1
   canvas = tk.Canvas(state = 'disable')
   retry_game()
 
 def retry_game():
-  global launch_count, i, a
+  global launch_count, i, game_over_switch
   input_message = "RETRY GAME ? (Y or N):"
   retry_answer = input(input_message)
   while not enable_retry_answer(retry_answer):
@@ -284,7 +280,7 @@ def retry_game():
     opened_canvas.clear()
     flag_place.clear()
     launch_count -= 1
-    a -= 1
+    game_over_switch -= 1
     i = 0
     play()
   elif retry_answer == 'N':
