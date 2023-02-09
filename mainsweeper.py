@@ -8,6 +8,7 @@ bom_count = 0
 game_over_switch = 0
 around_click_sum = -1
 launch_count = 0
+clear_point = 0
 bom_sum = 60
 number_color = ['00f','0f0','f00','c0d','fc0','ed3','f0f','d00']
 canvas_number = []
@@ -79,18 +80,25 @@ def create_canvas():
 
   return root, canvas
 
+def decision_clear():
+  global canvas, clear_point
+  print("congratulation!!")
+  clear_point += 1
+  canvas = tk.Canvas(state = 'disable')
+  retry_game()
+
 def canvas_place(x, y):
   canvas_place_number = x + y * NUMBER
   return canvas_place_number
 
-def click(event):
-  global bom_count, launch_count, game_over_switch, canvas, first_click_place, canvas_number, bom_number, opened_canvas, flag_place
+def first_click_function(event):
+  global bom_count, launch_count, game_over_switch, canvas_number, bom_number, flag_place
   x, y = point_to_numbers(event.x, event.y)
   if launch_count < 1 :
     first_click(x, y)
     launch_count += 1
     while bom_count < bom_sum:
-     set_bom()
+     create_bom()
      bom_count += 1  
 
   elif launch_count == 1 and canvas_number[ canvas_place(x, y) ] < BOM and flag_place[ canvas_place(x, y) ] == 0 and game_over_switch == 0:
@@ -98,9 +106,14 @@ def click(event):
      if bom_number[i] ==  canvas_place(x, y):
       return end_game()
   
+  second_click_function(event)
+  
+def second_click_function(event):
+  global bom_count, launch_count, game_over_switch, canvas_number, opened_canvas, flag_place, canvas
+  x, y = point_to_numbers(event.x, event.y)
   if flag_place[ canvas_place(x, y) ] == 1:
     pass
-  elif flag_place[ canvas_place(x, y) ] == 0:
+  elif flag_place[ canvas_place(x, y) ] == 0 and clear_point == 0:
     if canvas_number[ canvas_place(x, y) ] < 0 :
       set_item( "bom", x, y ) 
     elif canvas_number[ canvas_place(x, y) ] == 0:
@@ -115,9 +128,7 @@ def click(event):
   if game_over_switch == 0:
     print("LAST:", NUMBER * NUMBER - len(opened_canvas) - bom_count, "squares")
   if len(opened_canvas) == NUMBER * NUMBER - bom_count :
-    print("congratulation!!")
-    canvas = tk.Canvas(state = 'disable')
-    retry_game()
+    decision_clear()
 
 def flag_click(event2):
   global flag_place, opened_canvas
@@ -169,8 +180,8 @@ def around_click(x, y):
     around_click_sum = -1
 
 
-def set_bom():
-  global bom_place, canvas_number, bom_number, first_click_place, x_bom, y_bom
+def create_bom():
+  global first_click_place, x_bom, y_bom
   x_bom = random.randint(0, NUMBER-1)
   y_bom = random.randint(0, NUMBER-1)
   for i in range(0, len(first_click_place)):
@@ -179,6 +190,10 @@ def set_bom():
       y_bom = random.randint(0, NUMBER-1)
     else:
       continue
+  set_bom()
+
+def set_bom():
+  global bom_place, canvas_number, bom_number, x_bom, y_bom
   bom_place = [x_bom, y_bom] 
   bom_number.append( canvas_place(x_bom, y_bom) )
   bom_number[bom_count] = canvas_place(x_bom, y_bom)
@@ -191,7 +206,9 @@ def set_bom():
         continue
       else:
         canvas_number[ canvas_place(x_bom+j, y_bom+i) ] += 1
+  search_bom()
 
+def search_bom():
   if bom_count > 0:  #comfirm not to putting bom same place
     bom_check = 0
     while bom_check < bom_count:
@@ -207,7 +224,7 @@ def set_bom():
           continue
         else:
          canvas_number[ canvas_place(x_bom+j, y_bom+i) ] -= 1
-      set_bom()
+      create_bom()
 
 def before_set_number():
   global canvas_number
@@ -239,14 +256,22 @@ def end_game():
   global canvas, game_over_switch
   for i in range(0, bom_sum):
     set_item("end", bom_number[i] % NUMBER, bom_number[i] // NUMBER)
-  
+  opened_all_canvas()
   print("game_over")
   game_over_switch += 1
   canvas = tk.Canvas(state = 'disable')
   retry_game()
 
+def opened_all_canvas():
+  for i in range(0, NUMBER*NUMBER):
+    if canvas_number[ i ] < 0:
+      pass
+    else:
+      set_item(canvas_number[ i ] , i % NUMBER, i // NUMBER)
+
+
 def retry_game():
-  global launch_count, bom_count, game_over_switch, bom_place, bom_number, opened_canvas, add_opened_canvas, flag_place
+  global bom_place, bom_number, first_click_place, opened_canvas, launch_count, clear_point, game_over_switch, flag_place, bom_count 
   input_message = "RETRY GAME ? (Y or N):"
   retry_answer = input(input_message)
   while not enable_retry_answer(retry_answer):
@@ -257,6 +282,7 @@ def retry_game():
     first_click_place.clear()
     opened_canvas.clear()
     launch_count -= 1
+    clear_point = 0
     game_over_switch = 0
     bom_count = 0
     play()
@@ -276,7 +302,7 @@ def play():
   before_set_number()
   flag_set_number()
   recognized_opened_canvas()
-  canvas.bind("<Button-1>", lambda event1: click(event1))
+  canvas.bind("<Button-1>", lambda event1: first_click_function(event1))
   canvas.bind("<Shift-1>", lambda event2: flag_click(event2))
   root.mainloop()
 
