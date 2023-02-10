@@ -6,7 +6,7 @@ import sys
 canvas = None
 bom_count = 0
 game_over_switch = 0
-around_click_sum = -1
+around_open_sum = -1
 launch_count = 0
 clear_point = 0
 bom_sum = 60
@@ -15,7 +15,7 @@ canvas_number = []
 bom_place = []
 bom_number = []
 first_click_place = []
-around_click_list = []
+around_open_list = []
 opened_canvas = []
 add_opened_canvas = []
 flag_place = []
@@ -117,7 +117,7 @@ def second_click_function(event):
     if canvas_number[ canvas_place(x, y) ] < 0 :
       set_item( "bom", x, y ) 
     elif canvas_number[ canvas_place(x, y) ] == 0:
-        around_click( x, y )
+        around_open( x, y )
         set_item("0", x, y)
     elif canvas_number[ canvas_place(x,y) ] >= 1:
         set_item( canvas_number[ canvas_place(x, y)], x, y)
@@ -159,8 +159,8 @@ def first_click(x, y):
       else:
        first_click_place.append( canvas_place(x+j, y+i) )
 
-def around_click(x, y):
-    global around_click_list, around_click_sum, opened_canvas
+def around_open(x, y):
+    global around_open_list, around_open_sum, opened_canvas
     for i in range(-1, 2):
       for j in range(-1, 2):
         if x+j < 0 or x+j > NUMBER-1 or y+i < 0 or y+i > NUMBER-1:
@@ -170,14 +170,14 @@ def around_click(x, y):
             set_item( canvas_number[ canvas_place(x+j, y+i) ], x+j, y+i )
             opened_canvas.append( canvas_place(x+j, y+i) )
             if canvas_number[ canvas_place(x+j, y+i) ] == 0:
-              around_click_list.append( canvas_place(x+j, y+i) )
-    around_click_sum += 1
-    around_click_list = list(dict.fromkeys(around_click_list))
+              around_open_list.append( canvas_place(x+j, y+i) )
+    around_open_sum += 1
+    around_open_list = list(dict.fromkeys(around_open_list))
     opened_canvas = list(dict.fromkeys(opened_canvas))
-    if around_click_sum < len(around_click_list) :
-      around_click(around_click_list[around_click_sum] % NUMBER, around_click_list[around_click_sum] // NUMBER)
-    around_click_list.clear()
-    around_click_sum = -1
+    if around_open_sum < len(around_open_list) :
+      around_open(around_open_list[around_open_sum] % NUMBER, around_open_list[around_open_sum] // NUMBER)
+    around_open_list.clear()
+    around_open_sum = -1
 
 
 def create_bom():
