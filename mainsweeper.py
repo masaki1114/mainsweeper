@@ -109,11 +109,11 @@ def first_click_function(event):
   second_click_function(event)
   
 def second_click_function(event):
-  global bom_count, launch_count, game_over_switch, canvas_number, opened_canvas, flag_place, canvas
+  global bom_count, launch_count, game_over_switch, canvas_number, opened_canvas, flag_place, canvas, clear_point
   x, y = point_to_numbers(event.x, event.y)
   if flag_place[ canvas_place(x, y) ] == 1:
     pass
-  elif flag_place[ canvas_place(x, y) ] == 0 and clear_point == 0:
+  elif flag_place[ canvas_place(x, y) ] == 0 and clear_point == 0 and game_over_switch == 0:
     if canvas_number[ canvas_place(x, y) ] < 0 :
       set_item( "bom", x, y ) 
     elif canvas_number[ canvas_place(x, y) ] == 0:
@@ -125,9 +125,9 @@ def second_click_function(event):
 
   opened_canvas = list(dict.fromkeys(opened_canvas))
   
-  if game_over_switch == 0:
+  if game_over_switch == 0 and clear_point == 0:
     print("LAST:", NUMBER * NUMBER - len(opened_canvas) - bom_count, "squares")
-  if len(opened_canvas) == NUMBER * NUMBER - bom_count :
+  if len(opened_canvas) == NUMBER * NUMBER - bom_count and clear_point == 0:
     decision_clear()
 
 def flag_click(event2):
