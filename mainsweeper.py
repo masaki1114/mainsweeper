@@ -92,7 +92,7 @@ def canvas_place(x, y):
   return canvas_place_number
 
 def first_click_function(event):
-  global bom_count, launch_count, game_over_switch, canvas_number, bom_number, flag_place
+  global bom_count, launch_count, game_over_switch, canvas_number, bom_number, flag_place, clear_point
   x, y = point_to_numbers(event.x, event.y)
   if launch_count < 1 :
     first_click(x, y)
@@ -101,7 +101,7 @@ def first_click_function(event):
      create_bom()
      bom_count += 1  
 
-  elif launch_count == 1 and canvas_number[ canvas_place(x, y) ] < BOM and flag_place[ canvas_place(x, y) ] == 0 and game_over_switch == 0:
+  elif launch_count == 1 and canvas_number[ canvas_place(x, y) ] < BOM and flag_place[ canvas_place(x, y) ] == 0 and game_over_switch == 0 and clear_point == 0:
     for i in range(0, bom_sum):
      if bom_number[i] ==  canvas_place(x, y):
       return end_game()
