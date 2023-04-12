@@ -53,9 +53,7 @@ def set_item(kind, x, y):
     elif kind == canvas_number[ canvas_place(x, y) ]:
       canvas.create_rectangle(center_x - SQUARE_LENGTH / 2, center_y - SQUARE_LENGTH / 2, center_x + SQUARE_LENGTH / 2, center_y + SQUARE_LENGTH / 2, fill='#fda', width=0)
       for i in range(1, BOM):
-        if canvas_number[ canvas_place(x, y) ] != i:
-          pass
-        elif canvas_number[ canvas_place(x, y) ] == i:
+        if canvas_number[ canvas_place(x, y) ] == i:
           canvas.create_text(center_x, center_y, text=kind, justify="center", font=("", 25), tag="count_text", fill="" + "#" + number_color[i-1])
     elif kind == "end":
       canvas.create_rectangle(center_x - SQUARE_LENGTH / 2, center_y - SQUARE_LENGTH / 2, center_x + SQUARE_LENGTH / 2, center_y + SQUARE_LENGTH / 2, fill="#ccc", width=0)
@@ -96,7 +94,7 @@ def first_click_function(event):
     launch_judgement += 1
     create_bom()
 
-  elif launch_judgement == True and canvas_number[ canvas_place(x, y) ] == BOM and flag_place[ canvas_place(x, y) ] == False and playing_judgement == False: 
+  elif launch_judgement and canvas_number[ canvas_place(x, y) ] == BOM and flag_place[ canvas_place(x, y) ] == False and playing_judgement == False: 
     for i in range(0, bom_sum):
      if bom_number[i] ==  canvas_place(x, y):
       return end_game(bom_number)
@@ -106,9 +104,7 @@ def first_click_function(event):
 def second_click_function(event):
   global bom_count, playing_judgement, canvas_number, opened_canvas, flag_place
   x, y = point_to_numbers(event.x, event.y)
-  if flag_place[ canvas_place(x, y) ] == True:
-    pass
-  elif playing_judgement == False: 
+  if flag_place[ canvas_place(x, y) ] == False and playing_judgement == False: 
     if canvas_number[ canvas_place(x, y) ] == 9:
       set_item( "bom", x, y ) 
     elif canvas_number[ canvas_place(x, y) ] == 0:
@@ -132,43 +128,33 @@ def flag_click(event2):
   global flag_place, opened_canvas
   x, y = point_to_numbers(event2.x, event2.y)
   for i in range(0, len(opened_canvas)):
-    if add_opened_canvas[ opened_canvas[i] ] != True:
+    if add_opened_canvas[ opened_canvas[i] ] == False:
       add_opened_canvas[opened_canvas[i]] += 1
-    else:
-      pass
 
-  if add_opened_canvas[ canvas_place(x, y) ] == True:
-    pass
-  else:   
-    if flag_place[ canvas_place(x, y) ] == False:
-     set_item("F", x, y)
-     flag_place[ canvas_place(x, y) ] += 1
-     flag_place.append( canvas_place(x, y) )
-    elif flag_place[ canvas_place(x, y) ] == True:
-     set_item("block", x, y)
-     flag_place[ canvas_place(x, y) ] -= 1
+  if add_opened_canvas[ canvas_place(x, y) ] == False and flag_place[ canvas_place(x, y) ] == False:
+    set_item("F", x, y)
+    flag_place[ canvas_place(x, y) ] += 1
+    flag_place.append( canvas_place(x, y) )
+  elif flag_place[ canvas_place(x, y) ]:
+    set_item("block", x, y)
+    flag_place[ canvas_place(x, y) ] -= 1
   
 def first_click(x, y):
   global first_click_place
   for i in range(-1, 2):
     for j in range(-1, 2):
-      if x+j < 0 or x+j > NUMBER-1 or y+i < 0 or y+i > NUMBER-1: 
-        pass
-      else:
+      if 0 <= x+j <= NUMBER-1 and  0 <= y+i <= NUMBER-1: 
        first_click_place.append( canvas_place(x+j, y+i) )
 
 def around_open(x, y):
     global around_open_list, around_open_sum, opened_canvas
     for i in range(-1, 2):
       for j in range(-1, 2):
-        if x+j < 0 or x+j > NUMBER-1 or y+i < 0 or y+i > NUMBER-1:
-          pass
-        else:
-          if flag_place[ canvas_place(x+j, y+i) ] == False:
-            set_item( canvas_number[ canvas_place(x+j, y+i) ], x+j, y+i )
-            opened_canvas.append( canvas_place(x+j, y+i) )
-            if canvas_number[ canvas_place(x+j, y+i) ] == 0:
-              around_open_list.append( canvas_place(x+j, y+i) )
+        if 0 <= x+j <= NUMBER-1 and 0 <= y+i <= NUMBER-1 and flag_place[ canvas_place(x+j, y+i) ] == False:
+          set_item( canvas_number[ canvas_place(x+j, y+i) ], x+j, y+i )
+          opened_canvas.append( canvas_place(x+j, y+i) )
+          if canvas_number[ canvas_place(x+j, y+i) ] == 0:
+            around_open_list.append( canvas_place(x+j, y+i) )
     around_open_sum += 1
     around_open_list = list(dict.fromkeys(around_open_list))
     opened_canvas = list(dict.fromkeys(opened_canvas))
@@ -258,9 +244,7 @@ def end_game(bom_number):
 
 def opened_all_canvas():
   for i in range(0, NUMBER*NUMBER):
-    if canvas_number[ i ] == 9:
-      pass
-    else:
+    if canvas_number[ i ] != 9:
       set_item(canvas_number[ i ] , i % NUMBER, i // NUMBER)
 
 
